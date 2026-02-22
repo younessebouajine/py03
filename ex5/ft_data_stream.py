@@ -2,6 +2,7 @@
 
 from typing import Generator
 
+
 def event_generator(num_events: int) -> Generator:
 
     players = ["alice", "bob", "charlie"]
@@ -27,7 +28,7 @@ def prime_generator(n: int) -> Generator:
 
     primes = []
     num = 2
-    
+
     while len(primes) < n:
         is_prime = True
         for p in primes:
@@ -43,11 +44,10 @@ def prime_generator(n: int) -> Generator:
 if __name__ == "__main__":
     try:
         print("=== Game Data Stream Processor ===")
-        print("\nProcessing 1000 game events...\n")
 
-
-        events = event_generator(1000)
-
+        num_events = 1000
+        print(f"\nProcessing {num_events} game events...\n")
+        events = event_generator(num_events)
 
         total = 0
         high_level = 0
@@ -55,8 +55,12 @@ if __name__ == "__main__":
         levelup = 0
 
         for event in events:
-            if event['id'] <= 1000:
-                print(f"Event {event['id']}: Player {event['player']} (level {event['level']}) {event['action']}")
+            if event['id'] <= num_events:
+                message = (
+                    f"Event {event['id']}: Player {event['player']} "
+                    f"(level {event['level']}) {event['action']}"
+                )
+                print(message)
 
             total += 1
             if event['level'] >= 10:
@@ -72,9 +76,8 @@ if __name__ == "__main__":
         print(f"Treasure events: {treasure}")
         print(f"Level-up events: {levelup}")
 
-        print(f"\nMemory usage: Constant (streaming)")
-        print(f"Processing time: 0.045 seconds")
-
+        print("\nMemory usage: Constant (streaming)")
+        print("Processing time: 0.045 seconds")
 
         print("\n=== Generator Demonstration ===")
         fib = fibonacci_generator(10)
@@ -86,7 +89,6 @@ if __name__ == "__main__":
             fib_output += f"{num}"
             count += 1
         print(fib_output)
-
 
         primes = prime_generator(5)
         prime_output = "Prime numbers (first 5): "

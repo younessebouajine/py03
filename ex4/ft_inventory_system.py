@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 import sys
 
+
 def inventory_dict(inventory_list: list) -> dict:
     inventory = dict()
 
     for element in inventory_list:
-        name = ""
-        quantity_str = ""
-        parsing_quantity = False
+        parts = element.split(":")
+        if len(parts) != 2:
+            continue
 
-        for n in element:
-            if not parsing_quantity:
-                if n == ":":
-                    parsing_quantity = True
-                else:
-                    name += n
-            else:
-                quantity_str += n
+        name, quantity_str = parts
+        if name == "" or quantity_str == "":
+            continue
 
-        if name != "" and quantity_str != "":
-            inventory.update({name: int(quantity_str)})
+        inventory.update({
+            name: {
+                "name": name,
+                "quantity": int(quantity_str),
+            }
+        })
+
     return inventory
 
 
@@ -27,8 +28,8 @@ def inventory_system_analysis(inventory: dict) -> None:
     print("=== Inventory System Analysis ===")
 
     total_items = 0
-    for n in inventory.values():
-        total_items += n
+    for info in inventory.values():
+        total_items += info.get("quantity")
     print(f"Total items in inventory: {total_items}")
     print(f"Unique item types: {len(inventory)}")
 
@@ -37,95 +38,127 @@ def current_inventory(inventory: dict) -> None:
     print("\n=== Current Inventory ===")
 
     total_items = 0
-    for n in inventory.values():
-        total_items += n
+    for info in inventory.values():
+        total_items += info.get("quantity", 0)
 
-    for element in inventory.keys():
-        quantity = inventory.get(element)
-        try:
+    for item, info in inventory.items():
+        quantity = info.get("quantity")
+        if total_items != 0:
             potion_pers = (quantity / total_items) * 100
-        except ZeroDivisionError as e:
-            print(f"Error: {e}")
-        print(f"{element}: {quantity} units ({potion_pers:.1f}%)")
+        else:
+            potion_pers = 0
+        print(f"{item}: {quantity} units ({potion_pers:.1f}%)")
 
 
 def inventory_statistics(inventory: dict) -> None:
     print("\n=== Inventory Statistics ===")
-    most_abundant = 0
-    for n in inventory.values():
-        if most_abundant < n:
-            most_abundant = n
 
-    for element in inventory.keys():
-        if inventory.get(element) == most_abundant:
-            print(f"Most abundant: {element} ({most_abundant} units)")
+    most_abundant = 0
+    for info in inventory.values():
+        quantity = info.get("quantity")
+        if most_abundant < quantity:
+            most_abundant = quantity
+
+    for item, info in inventory.items():
+        if info.get("quantity") == most_abundant:
+            print(f"Most abundant: {item} ({most_abundant} units)")
+            break
 
     least_abundant = 0
-    for key in inventory:
-        least_abundant = inventory.get(key)
+    for info in inventory.values():
+        least_abundant = info.get("quantity")
         break
 
-    for n in inventory.values():
-        if least_abundant > n:
-            least_abundant = n
+    for info in inventory.values():
+        quantity = info.get("quantity")
+        if least_abundant > quantity:
+            least_abundant = quantity
 
-    for element in inventory.keys():
-        if inventory.get(element) == least_abundant:
-            print(f"Least abundant: {element} ({least_abundant} units)")
+    for item, info in inventory.items():
+        if info.get("quantity") == least_abundant:
+            print(f"Least abundant: {item} ({least_abundant} unit)")
+            break
 
 
 def item_categories(inventory: dict) -> None:
     print("\n=== Item Categories ===")
 
-    moderate = dict()
-    scarce = dict()
+    inventory_categories = {
+        "Moderate": dict(),
+        "Scarce": dict(),
+        "Abundant": dict()
+    }
 
-    for item in inventory.keys():
-        quantity = inventory.get(item)
-        if quantity >= 5:
-            moderate.update({item: quantity})
+    max_quantity = 0
+    for info in inventory.values():
+        quantity = info.get("quantity")
+        if quantity > max_quantity:
+            max_quantity = quantity
+
+    for item, info in inventory.items():
+        quantity = info.get("quantity")
+        if quantity == max_quantity:
+            inventory_categories["Moderate"][item] = quantity
         else:
-            scarce.update({item: quantity})
+            inventory_categories["Scarce"][item] = quantity
 
-    print(f"Moderate: {moderate}")
-    print(f"Scarce: {scarce}")
+    print(f"Moderate: {inventory_categories['Moderate']}")
+    print(f"Scarce: {inventory_categories['Scarce']}")
+    print(f"Abundant: {inventory_categories['Abundant']}")
+
 
 def management_suggestions(inventory: dict) -> None:
     print("\n=== Management Suggestions ===")
-    restock_needed = []
 
-    for item in inventory.keys():
-        quantity = inventory.get(item)
+    restock_needed = ""
+    first = True
+
+    for item, info in inventory.items():
+        quantity = info.get("quantity")
         if quantity <= 1:
-            restock_needed.append(item)
+            if first:
+                restock_needed += item
+                first = False
+            else:
+                restock_needed += ", " + item
 
     print(f"Restock needed: {restock_needed}")
 
+
 def dictionary_properties_demo(inventory: dict) -> None:
-    print("=== Dictionary Properties Demo ===")
+    print("\n=== Dictionary Properties Demo ===")
+
     dictionary_keys = ""
+    first = True
     for key in inventory.keys():
-        dictionary_keys += key + ", "
-    dictionary_keys = dictionary_keys[:-2]
+        if first:
+            dictionary_keys += key
+            first = False
+        else:
+            dictionary_keys += ", " + key
     print(f"Dictionary keys: {dictionary_keys}")
 
     dictionary_values = ""
-    for value in inventory.values():
-        dictionary_values += str(value) + ", "
-    dictionary_values = dictionary_values[:-2]
+    first = True
+    for info in inventory.values():
+        value = info.get("quantity")
+        if first:
+            dictionary_values += str(value)
+            first = False
+        else:
+            dictionary_values += ", " + str(value)
     print(f"Dictionary values: {dictionary_values}")
 
-    is_in_inventory = False
-    for key in inventory.keys():
-        if key == "sword":
-            is_in_inventory = True
-    print(f"Sample lookup - 'sword' in inventory: {is_in_inventory}")
+    print(f"Sample lookup - 'sword' in inventory: {'sword' in inventory}")
+
 
 if __name__ == "__main__":
     try:
-        inventory_list=sys.argv[1:]
+        inventory_list = sys.argv[1:]
         inventorydict = inventory_dict(inventory_list)
+
         inventory_system_analysis(inventorydict)
+        print("")
         current_inventory(inventorydict)
         inventory_statistics(inventorydict)
         item_categories(inventorydict)
