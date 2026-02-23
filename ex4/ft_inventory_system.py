@@ -154,15 +154,18 @@ def dictionary_properties_demo(inventory: dict) -> None:
 
 if __name__ == "__main__":
     try:
-        inventory_list = sys.argv[1:]
-        inventorydict = inventory_dict(inventory_list)
+        if len(sys.argv) == 1:
+            print("please enter argument : (try agin!)")
+        else:
+            inventory_list = sys.argv[1:]
+            inventorydict = inventory_dict(inventory_list)
 
-        inventory_system_analysis(inventorydict)
-        print("")
-        current_inventory(inventorydict)
-        inventory_statistics(inventorydict)
-        item_categories(inventorydict)
-        management_suggestions(inventorydict)
-        dictionary_properties_demo(inventorydict)
+            inventory_system_analysis(inventorydict)
+            print("")
+            current_inventory(inventorydict)
+            inventory_statistics(inventorydict)
+            item_categories(inventorydict)
+            management_suggestions(inventorydict)
+            dictionary_properties_demo(inventorydict)
     except Exception as e:
         print(f"Error: {e}")
